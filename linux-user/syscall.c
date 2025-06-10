@@ -45,6 +45,8 @@
 #include <sys/sem.h>
 #include <sys/statfs.h>
 #include <utime.h>
+#include <time.h>
+#include <linux/sockios.h>
 #include <sys/sysinfo.h>
 #include <sys/signalfd.h>
 //#include <sys/user.h>
