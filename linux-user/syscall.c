@@ -45,6 +45,8 @@
 #include <sys/sem.h>
 #include <sys/statfs.h>
 #include <utime.h>
+#include <time.h>
+#include <linux/sockios.h>
 #include <sys/sysinfo.h>
 #include <sys/signalfd.h>
 //#include <sys/user.h>
@@ -247,16 +249,6 @@ static type name (type1 arg1,type2 arg2,type3 arg3,type4 arg4,type5 arg5,	\
 /* Newer kernel ports have llseek() instead of _llseek() */
 #if defined(TARGET_NR_llseek) && !defined(TARGET_NR__llseek)
 #define TARGET_NR__llseek TARGET_NR_llseek
-#endif
-
-#ifdef __NR_gettid
-_syscall0(int, gettid)
-#else
-/* This is a replacement for the host gettid() and must return a host
-   errno. */
-static int gettid(void) {
-    return -ENOSYS;
-}
 #endif
 
 /* For the 64-bit guest on 32-bit host case we must emulate
@@ -7329,7 +7321,13 @@ static abi_long do_syscall1(void *cpu_env, int num, abi_long arg1,
             time_t host_time;
             if (get_user_sal(host_time, arg1))
                 return -TARGET_EFAULT;
-            return get_errno(stime(&host_time));
+            // return get_errno(stime(&host_time));
+
+
+            struct timespec ts;
+            ts.tv_sec = host_time;
+            ts.tv_nsec = 0;
+            return get_errno(clock_settime(CLOCK_REALTIME, &ts));
         }
 #endif
 #ifdef TARGET_NR_alarm /* not on alpha */
